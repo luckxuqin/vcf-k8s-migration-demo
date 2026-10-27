@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Kubernetes Stateful Migration on VMware Cloud Foundation 9.1</title>
+  <meta name="description" content="Technical validation and production guide for stateful Kubernetes workload migration patterns on VMware Cloud Foundation 9.1 / vSphere with Tanzu and vSAN ESA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-surface: #0f172a;
+      --bg-card: #131d35;
+      --bg-term: #030712;
+      --border-subtle: #1e293b;
+      --border-accent: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-orange: #fb923c;
+      --accent-purple: #a855f7;
+      --accent-yellow: #facc15;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent-blue); text-decoration: none; transition: 0.2s; }
+    a:hover { text-decoration: underline; }
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    /* Nav */
+    header {
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .nav-inner {
+      height: 72px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 17px;
+      color: #fff;
+    }
+    .brand-pill {
+      background: #0284c7;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-links a { color: var(--text-muted); }
+    .nav-links a:hover { color: #fff; text-decoration: none; }
+    .btn-gh {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .btn-gh:hover { background: var(--border-subtle); text-decoration: none; }
+
+    /* Hero */
+    .hero {
+      padding: 70px 0 50px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .badge-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+    }
+    .badge-cyan { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .badge-orange { background: rgba(251, 146, 60, 0.15); color: var(--accent-orange); border: 1px solid rgba(251, 146, 60, 0.3); }
+    .badge-green { background: rgba(52, 211, 153, 0.15); color: var(--accent-green); border: 1px solid rgba(52, 211, 153, 0.3); }
+
+    h1.hero-title {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      margin-bottom: 18px;
+      color: #fff;
+    }
+    p.hero-desc {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 860px;
+      margin-bottom: 36px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    .kpi-val {
+      font-size: 36px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-green);
+      line-height: 1.1;
+    }
+    .kpi-val.cyan { color: var(--accent-blue); }
+    .kpi-val.orange { color: var(--accent-orange); }
+    .kpi-lbl {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Section */
+    section {
+      padding: 55px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .sec-header {
+      margin-bottom: 30px;
+    }
+    h2.sec-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    p.sec-sub {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    /* Video Player */
+    .video-shell {
+      background: #000;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      aspect-ratio: 16 / 9;
+      position: relative;
+    }
+    .video-shell video {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .chapter-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chapter-card:hover {
+      background: var(--bg-card);
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+    .chapter-ts {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent-blue);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .chapter-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Comparative Table */
+    table.spec-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      font-size: 14px;
+    }
+    table.spec-tbl th {
+      background: #111a2e;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 14px 18px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-accent);
+    }
+    table.spec-tbl td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: #cbd5e1;
+    }
+    table.spec-tbl tr:nth-child(even) td { background: rgba(15, 23, 42, 0.6); }
+    table.spec-tbl tr:hover td { background: rgba(30, 41, 59, 0.5); }
+    .pill-win {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--accent-green);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    /* Scenarios Detail Grid */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .sc-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sc-num {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .sc-num.s1 { color: var(--accent-yellow); }
+    .sc-num.s2 { color: var(--accent-purple); }
+    .sc-num.s3 { color: var(--accent-green); }
+    .sc-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .sc-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      flex: 1;
+    }
+    .sc-stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 13px;
+    }
+    .sc-stat-label { color: var(--text-dim); }
+    .sc-stat-val { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+    /* Terminal Box */
+    .term-box {
+      background: var(--bg-term);
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #d1d5db;
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+    .term-prompt { color: var(--accent-blue); font-weight: bold; }
+    .term-cmd { color: var(--accent-yellow); }
+    .term-ok { color: var(--accent-green); }
+    .term-dim { color: #6b7280; }
+    .term-hi { color: #f43f5e; }
+
+    /* Object Inventory Filter & Table */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent-blue);
+      color: #090d16;
+      border-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    @media (max-width: 992px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .scenario-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      h1.hero-title { font-size: 30px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container nav-inner">
+      <div class="brand">
+        <span>VCF 9.1 Tanzu</span>
+        <span class="brand-pill">MIGRATION TESTBED</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#video-demo">Video Demo</a></li>
+        <li><a href="#comparison">Benchmark Comparison</a></li>
+        <li><a href="#scenarios">Scenarios</a></li>
+        <li><a href="#objects">Migrated Objects</a></li>
+        <li><a href="#downloads">Artifacts</a></li>
+      </ul>
+      <a href="https://github.com/luckxuqin/vcf-k8s-migration-demo" target="_blank" class="btn-gh">
+        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub Repository
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="container">
+      <div class="badge-strip">
+        <span class="badge badge-cyan">VMware Cloud Foundation 9.1</span>
+        <span class="badge badge-purple">vSphere with Tanzu</span>
+        <span class="badge badge-orange">vSAN ESA NVMe Storage</span>
+        <span class="badge badge-green">PostgreSQL 16.4 Alpine</span>
+      </div>
+      <h1 class="hero-title">Stateful Kubernetes Migration & App-Centric Metadata Reconciliation</h1>
+      <p class="hero-desc">
+        A production-grade empirical testbed comparing <strong>Zero-Copy First Class Disk (FCD) Adoption</strong>, <strong>Filesystem Streaming Replication</strong>, and <strong>Velero + MinIO S3 Object Storage</strong> across live Tanzu guest clusters on VMware Cloud Foundation 9.1.
+      </p>
+
+      <!-- KPI Strip -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-val">5,000</div>
+          <div class="kpi-lbl">Database Records Validated</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val">100%</div>
+          <div class="kpi-lbl">Bit-for-Bit Checksum Match</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val cyan">0 Bytes</div>
+          <div class="kpi-lbl">Zero-Copy Network Bandwidth</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val orange">3 / 3</div>
+          <div class="kpi-lbl">Architectural Patterns Passed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Section -->
+  <section id="video-demo">
+    <div class="container">
+      <div class="sec-header">
+        <h2 class="sec-title">Full HD Video Demonstration</h2>
+        <p class="sec-sub">Watch the end-to-end multi-scenario execution and target cluster validation (1080p · 1m 37s).</p>
+      </div>
+
+      <div class="video-shell">
+        <video id="demoVideo" controls poster="assets/images/slide1.png">
+          <source src="assets/media/k8s_migration_demo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <!-- Chapter Jump Strip -->
+      <div class="chapter-grid">
+        <div class="chapter-card" onclick="seek(0)">
+          <div class="chapter-ts">00:00</div>
+          <div class="chapter-name">1. Architecture Overview</div>
+        </div>
+        <div class="chapter-card" onclick="seek(8)">
+          <div class="chapter-ts">00:08</div>
+          <div class="chapter-name">2. Source Baseline & Hash</div>
+        </div>
+        <div class="chapter-card" onclick="seek(19)">
+          <div class="chapter-ts">00:19</div>
+          <div class="chapter-name">3. Scenario 1: Streaming</div>
+        </div>
+        <div class="chapter-card" onclick="seek(32)">
+          <div class="chapter-ts">00:32</div>
+          <div class="chapter-name">4. Scenario 2: Velero S3</div>
+        </div>
+        <div class="chapter-card" onclick="seek(45)">
+          <div class="chapter-ts">00:45</div>
+          <div class="chapter-name">5. Scenario 3: Zero-Copy</div>
+        </div>
+        <div class="chapter-card" onclick="seek(58)">
+          <div class="chapter-ts">00:58</div>
+          <div class="chapter-name">6. Multi-Target Validation</div>
+        </div>
+        <div class="chapter-card" onclick="seek(69)">
+          <div class="chapter-ts">01:09</div>
+          <div class="chapter-name">7. Production Decision Matrix</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benchmark Comparison -->
+  <section id="comparison">
+    <div class="container">
+      <div class="sec-header">
+        <h2 class="sec-title">Quantitative Performance Matrix</h2>
+        <p class="sec-sub">Direct comparison of data mover performance, cutover downtime, and reconciliation across all three tested scenarios.</p>
+      </div>
+
+      <table class="spec-tbl">
+        <thead>
+          <tr>
+            <th>Metric / Criterion</th>
+            <th>Scenario 1: Filesystem Streaming</th>
+            <th>Scenario 2: Velero + MinIO S3</th>
+            <th>Scenario 3: Zero-Copy FCD Adoption</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Migration Pattern</strong></td>
+            <td>Pattern 2 (POSIX Network Stream)</td>
+            <td>Pattern 3 (Object Store Engine)</td>
+            <td>Pattern 1 (Hypervisor Block Zero-Copy)</td>
+          </tr>
+          <tr>
+            <td><strong>Target Namespace</strong></td>
+            <td><code>demo-pvmigrate</code></td>
+            <td><code>demo-velero</code></td>
+            <td><code>migration-demo</code></td>
+          </tr>
+          <tr>
+            <td><strong>Data Movement Channel</strong></td>
+            <td>Cross-cluster POSIX binary pipe</td>
+            <td>S3 backup/restore via Kopia engine</td>
+            <td>vSAN ESA Paravirtual CSI adoption</td>
+          </tr>
+          <tr>
+            <td><strong>Network Bytes Copied</strong></td>
+            <td>47.3 MB (Uncompressed)</td>
+            <td>22.6 MB (Compressed S3 Blobs)</td>
+            <td><span class="pill-win">0 Bytes (Zero Network Copy)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Data Replication Time</strong></td>
+            <td><strong>0.98 seconds</strong></td>
+            <td>3.97s (Backup) + 9.04s (Restore)</td>
+            <td><span class="pill-win">Instantaneous (Metadata re-bind)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Workload Quiescing Time</strong></td>
+            <td>1.16 seconds</td>
+            <td>0.00 seconds (Online snapshot)</td>
+            <td>1.05 seconds</td>
+          </tr>
+          <tr>
+            <td><strong>End-to-End Cutover (RTO)</strong></td>
+            <td><span class="pill-win">9.37 seconds</span></td>
+            <td>13.01 seconds</td>
+            <td>17.49 seconds (Detach & Re-attach)</td>
+          </tr>
+          <tr>
+            <td><strong>Data Loss (RPO)</strong></td>
+            <td>0 (Quiesced)</td>
+            <td>0 (Quiesced / Consistent)</td>
+            <td>0 (Quiesced)</td>
+          </tr>
+          <tr>
+            <td><strong>Helm State Reconciliation</strong></td>
+            <td><code>helm upgrade --install</code></td>
+            <td><span class="pill-win">Direct release secret restore</span></td>
+            <td><code>helm upgrade --take-ownership</code></td>
+          </tr>
+          <tr>
+            <td><strong>AppConfig CRD & CR Migrated</strong></td>
+            <td>Re-applied via Helm template</td>
+            <td><span class="pill-win">Direct Velero restore from S3</span></td>
+            <td>Re-applied via Helm template</td>
+          </tr>
+          <tr>
+            <td><strong>Target Pod Status</strong></td>
+            <td>1/1 Running</td>
+            <td>1/1 Running</td>
+            <td>1/1 Running</td>
+          </tr>
+          <tr>
+            <td><strong>Post-Migration SHA-256 Checksum</strong></td>
+            <td><code>c318e5f2f42f3fb6d4da7b7371a6191e</code></td>
+            <td><code>c318e5f2f42f3fb6d4da7b7371a6191e</code></td>
+            <td><code>c318e5f2f42f3fb6d4da7b7371a6191e</code></td>
+          </tr>
+          <tr>
+            <td><strong>Integrity Verification Result</strong></td>
+            <td><span class="pill-win">100% Bit-for-Bit Identical</span></td>
+            <td><span class="pill-win">100% Bit-for-Bit Identical</span></td>
+            <td><span class="pill-win">100% Bit-for-Bit Identical</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Architectural Scenarios Detail -->
+  <section id="scenarios">
+    <div class="container">
+      <div class="sec-header">
+        <h2 class="sec-title">Architectural Scenarios Deep Dive</h2>
+        <p class="sec-sub">Technical implementation details, mechanics, and operational steps for each migration pattern.</p>
+      </div>
+
+      <div class="scenario-grid">
+        <!-- Scenario 1 -->
+        <div class="sc-card">
+          <div class="sc-num s1">Pattern 2</div>
+          <h3 class="sc-title">Filesystem Streaming (pv-migrate / rsync)</h3>
+          <p class="sc-desc">
+            Establishes a direct POSIX data streaming pipeline between ephemeral reader and writer pods mounted to the source and target PVCs. Preserves Unix UID 999:ping permissions, metadata, and timestamps over an authenticated channel.
+          </p>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Transfer Speed:</span>
+            <span class="sc-stat-val">47.3 MB in 0.98s</span>
+          </div>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Total Cutover:</span>
+            <span class="sc-stat-val">9.37 seconds</span>
+          </div>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Best For:</span>
+            <span class="sc-stat-val">Fast Direct Migration</span>
+          </div>
+          <div class="term-box">
+            <span class="term-dim"># Stream POSIX pipe</span><br/>
+            <span class="term-prompt">$</span> <span class="term-cmd">kubectl exec src -- tar -cf - pgdata | kubectl exec -i dest -- tar -xpf -</span><br/>
+            <span class="term-ok">Replication completed in 0.985s</span>
+          </div>
+        </div>
+
+        <!-- Scenario 2 -->
+        <div class="sc-card">
+          <div class="sc-num s2">Pattern 3</div>
+          <h3 class="sc-title">Velero + MinIO S3 Object Store</h3>
+          <p class="sc-desc">
+            Leverages Velero v1.14.1 with Kopia pod volume backup engine to capture complete application metadata (CRDs, Helm release secrets, ConfigMaps, Secrets, NetworkPolicies) and volume data into an S3 bucket at <code>https://10.163.44.130:9000</code>.
+          </p>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Backup Duration:</span>
+            <span class="sc-stat-val">3.97 seconds (52 items)</span>
+          </div>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Restore Duration:</span>
+            <span class="sc-stat-val">9.04 seconds (20 items)</span>
+          </div>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Best For:</span>
+            <span class="sc-stat-val">Cross-DC / DR / Air-Gap</span>
+          </div>
+          <div class="term-box">
+            <span class="term-dim"># Velero Restore</span><br/>
+            <span class="term-prompt">$</span> <span class="term-cmd">velero restore create --from-backup payments-db-v1 --namespace-mappings migration-demo:demo-velero --wait</span><br/>
+            <span class="term-ok">Completed in 9.04s</span>
+          </div>
+        </div>
+
+        <!-- Scenario 3 -->
+        <div class="sc-card">
+          <div class="sc-num s3">Pattern 1</div>
+          <h3 class="sc-title">Zero-Copy FCD / CNS Adoption</h3>
+          <p class="sc-desc">
+            Capitalizes on shared VMware vSAN ESA block storage. When the source PVC is deleted with reclaimPolicy <code>Retain</code>, the physical First Class Disk (FCD) is cleanly detached from the worker node VM without deleting the volume. Target cluster statically binds the FCD via Paravirtual CSI with zero network copy.
+          </p>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Network Transferred:</span>
+            <span class="sc-stat-val" style="color:var(--accent-green)">0 Bytes</span>
+          </div>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Total Cutover:</span>
+            <span class="sc-stat-val">17.49 seconds</span>
+          </div>
+          <div class="sc-stat-row">
+            <span class="sc-stat-label">Best For:</span>
+            <span class="sc-stat-val">Multi-TB Large Databases</span>
+          </div>
+          <div class="term-box">
+            <span class="term-dim"># Static Paravirtual CSI PV</span><br/>
+            <span class="term-cmd">csi:</span><br/>
+            &nbsp;&nbsp;<span class="term-dim">driver: csi.vsphere.vmware.com</span><br/>
+            &nbsp;&nbsp;<span class="term-hi">volumeHandle: bc6259a5...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Migrated Objects Inventory -->
+  <section id="objects">
+    <div class="container">
+      <div class="sec-header">
+        <h2 class="sec-title">Migrated Kubernetes Objects & Metadata (22 Distinct Resources)</h2>
+        <p class="sec-sub">Complete catalog of all app-centric objects, network topology, storage chains, and RBAC components verified on <code>vks-target</code>.</p>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterObj('all')">All Objects (22)</button>
+        <button class="filter-btn" onclick="filterObj('Workload')">Workload & Pods</button>
+        <button class="filter-btn" onclick="filterObj('Metadata')">Metadata & CRDs</button>
+        <button class="filter-btn" onclick="filterObj('Storage')">Storage & PV/PVC</button>
+        <button class="filter-btn" onclick="filterObj('Network')">Networking</button>
+        <button class="filter-btn" onclick="filterObj('Security')">Config & RBAC</button>
+      </div>
+
+      <table class="spec-tbl" id="objTable">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>API Group & Version</th>
+            <th>Kind</th>
+            <th>Resource Name</th>
+            <th>Scope</th>
+            <th>Role & Key Attributes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-cat="Workload"><td>Workload</td><td><code>apps/v1</code></td><td>StatefulSet</td><td><code>payments-db</code></td><td>Namespaced</td><td>PostgreSQL database replica set with volume claim templates</td></tr>
+          <tr data-cat="Workload"><td>Workload</td><td><code>apps/v1</code></td><td>ControllerRevision</td><td><code>payments-db-df88b6cb8</code></td><td>Namespaced</td><td>Rollback history and StatefulSet spec hash</td></tr>
+          <tr data-cat="Workload"><td>Workload</td><td><code>v1</code></td><td>Pod</td><td><code>payments-db-0</code></td><td>Namespaced</td><td>Active PostgreSQL 16.4 Alpine database engine container (1/1 Running)</td></tr>
+          <tr data-cat="Metadata"><td>Metadata</td><td><code>apiextensions.k8s.io/v1</code></td><td>CustomResourceDefinition</td><td><code>appconfigs.migration.broadcom.com</code></td><td>Cluster</td><td>Schema definition for application governance and SLA metadata</td></tr>
+          <tr data-cat="Metadata"><td>Metadata</td><td><code>migration.broadcom.com/v1alpha1</code></td><td>AppConfig</td><td><code>payments-db-metadata</code></td><td>Namespaced</td><td>Application SLA: Platinum, Wave: Wave-01-Databases, Owner: Finance-Eng</td></tr>
+          <tr data-cat="Metadata"><td>Metadata</td><td><code>v1</code></td><td>Secret (Helm)</td><td><code>sh.helm.release.v1.payments-db.v1</code></td><td>Namespaced</td><td>Helm v3 release secret (status: deployed, revision: 1, chart: payments-db-1.0.0)</td></tr>
+          <tr data-cat="Storage"><td>Storage</td><td><code>v1</code></td><td>PersistentVolumeClaim</td><td><code>data-payments-db-0</code></td><td>Namespaced</td><td>1Gi capacity, ReadWriteOnce, vsan-esa-default-policy-raid5</td></tr>
+          <tr data-cat="Storage"><td>Storage</td><td><code>v1</code></td><td>PersistentVolume</td><td><code>adopted-fcd-pv</code></td><td>Cluster</td><td>Zero-Copy bound to vSAN ESA FCD bc6259a5-7ddd-45fe-a8e2-6a0c70a39e34-...</td></tr>
+          <tr data-cat="Storage"><td>Storage</td><td><code>v1</code></td><td>PersistentVolume</td><td><code>pvc-8818d449-3a72-...</code></td><td>Cluster</td><td>vSphere CSI dynamic volume restored via Velero Kopia engine</td></tr>
+          <tr data-cat="Storage"><td>Storage</td><td><code>v1</code></td><td>PersistentVolume</td><td><code>pvc-fa1ed375-714b-...</code></td><td>Cluster</td><td>vSphere CSI dynamic volume populated via filesystem stream</td></tr>
+          <tr data-cat="Network"><td>Network</td><td><code>v1</code></td><td>Service</td><td><code>payments-db-svc</code></td><td>Namespaced</td><td>ClusterIP exposing port 5432/TCP to cluster workloads</td></tr>
+          <tr data-cat="Network"><td>Network</td><td><code>v1</code></td><td>Endpoints</td><td><code>payments-db-svc</code></td><td>Namespaced</td><td>Network endpoint routing table pointing to PostgreSQL pod IP</td></tr>
+          <tr data-cat="Network"><td>Network</td><td><code>discovery.k8s.io/v1</code></td><td>EndpointSlice</td><td><code>payments-db-svc-d5m86</code></td><td>Namespaced</td><td>Scalable dual-stack endpoint slice representation</td></tr>
+          <tr data-cat="Network"><td>Network</td><td><code>networking.k8s.io/v1</code></td><td>Ingress</td><td><code>payments-db-ingress</code></td><td>Namespaced</td><td>Ingress routing for payments-db.migration.local (nginx class)</td></tr>
+          <tr data-cat="Network"><td>Network</td><td><code>networking.k8s.io/v1</code></td><td>NetworkPolicy</td><td><code>payments-db-netpol</code></td><td>Namespaced</td><td>Ingress restricted to port 5432 from namespace; DNS egress allowed</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>v1</code></td><td>Secret</td><td><code>payments-db-credentials</code></td><td>Namespaced</td><td>Database name (payments), username (payadmin), password</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>v1</code></td><td>ConfigMap</td><td><code>payments-db-config</code></td><td>Namespaced</td><td>postgresql.conf configuration parameters and init-data.sql schema</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>v1</code></td><td>ConfigMap</td><td><code>kube-root-ca.crt</code></td><td>Namespaced</td><td>Cluster API server root CA certificate bundle</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>v1</code></td><td>ServiceAccount</td><td><code>payments-db-sa</code></td><td>Namespaced</td><td>Workload identity bound to PostgreSQL execution context</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>v1</code></td><td>ServiceAccount</td><td><code>default</code></td><td>Namespaced</td><td>Default namespace service account identity</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>rbac.authorization.k8s.io/v1</code></td><td>Role</td><td><code>payments-db-reader-role</code></td><td>Namespaced</td><td>Grants get, list, watch permissions on ConfigMaps and Services</td></tr>
+          <tr data-cat="Security"><td>Security</td><td><code>rbac.authorization.k8s.io/v1</code></td><td>RoleBinding</td><td><code>payments-db-rb</code></td><td>Namespaced</td><td>Binds payments-db-reader-role to payments-db-sa ServiceAccount</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Downloads & Resources -->
+  <section id="downloads">
+    <div class="container">
+      <div class="sec-header">
+        <h2 class="sec-title">Repository Artifacts & Documentation</h2>
+        <p class="sec-sub">Everything required to reproduce and automate the migration in your VMware Cloud Foundation environment.</p>
+      </div>
+
+      <div class="grid-4" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div class="kpi-card">
+          <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--accent-blue);">Manifests</h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Zero-Copy PV adoption, Velero install bundle, VKS cluster specs.</p>
+          <a href="manifests/" style="font-size: 13px; font-weight: 600;">Browse /manifests →</a>
+        </div>
+        <div class="kpi-card">
+          <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--accent-purple);">Helm Chart</h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Complete <code>payments-db</code> v1.0.0 chart and packaged archive.</p>
+          <a href="helm/payments-db-chart/" style="font-size: 13px; font-weight: 600;">Browse /helm →</a>
+        </div>
+        <div class="kpi-card">
+          <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--accent-green);">Automation Scripts</h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">PowerShell S3 SigV4 client and video demo rendering script.</p>
+          <a href="scripts/" style="font-size: 13px; font-weight: 600;">Browse /scripts →</a>
+        </div>
+        <div class="kpi-card">
+          <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--accent-yellow);">Technical Audit</h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Full execution log, checksum audits, and command traces.</p>
+          <a href="docs/MIGRATION_EXECUTION_RECORD.md" style="font-size: 13px; font-weight: 600;">Read Record.md →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>VMware Cloud Foundation (VCF) 9.1 Technical Validation · Broadcom TMM Lab</p>
+      <p style="margin-top: 6px; font-size: 12px;">Built for vSphere with Tanzu, vSAN ESA, Velero, and Paravirtual CSI.</p>
+    </div>
+  </footer>
+
+  <script>
+    function seek(sec) {
+      const v = document.getElementById('demoVideo');
+      v.currentTime = sec;
+      v.play();
+      document.getElementById('video-demo').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterObj(category) {
+      const rows = document.querySelectorAll('#objTable tbody tr');
+      const buttons = document.querySelectorAll('.filter-btn');
+
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      rows.forEach(row => {
+        if (category === 'all' || row.getAttribute('data-cat') === category) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

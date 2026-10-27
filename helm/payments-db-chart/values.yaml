@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  tag: "16-alpine"
+
+serviceAccount:
+  create: true
+  name: "payments-db-sa"
+
+database:
+  name: "payments"
+  user: "payadmin"
+  password: "P@ssw0rdPayments2026!"
+  port: 5432
+  seedRows: 5000
+
+persistence:
+  enabled: true
+  storageClass: "vsan-esa-default-policy-raid5"
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+service:
+  type: ClusterIP
+  port: 5432
+
+ingress:
+  enabled: true
+  className: ""
+  hosts:
+    - host: payments-db.migration.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+networkPolicy:
+  enabled: true
+
+appConfig:
+  slaTier: "Platinum"
+  wave: "Wave-01-Databases"
+  rpoHours: 0
+  rtoMinutes: 5
+  owner: "Finance-Engineering"

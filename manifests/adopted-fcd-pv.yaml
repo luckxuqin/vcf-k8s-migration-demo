@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: adopted-fcd-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: vsan-esa-default-policy-raid5
+  csi:
+    driver: csi.vsphere.vmware.com
+    volumeHandle: bc6259a5-7ddd-45fe-a8e2-6a0c70a39e34-a832dc37-a345-4477-b6b6-15c41d2edbef
+    fsType: ext4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-payments-db-0
+  namespace: migration-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: vsan-esa-default-policy-raid5
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: adopted-fcd-pv

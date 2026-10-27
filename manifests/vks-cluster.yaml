@@ -1,0 +1,51 @@
+apiVersion: cluster.x-k8s.io/v1beta2
+kind: Cluster
+metadata:
+  name: vks-target
+  namespace: vks-migration-demo
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    serviceDomain: cluster.local
+    services:
+      cidrBlocks:
+      - 10.96.0.0/12
+  topology:
+    classRef:
+      name: builtin-generic-v3.7.0
+      namespace: vmware-system-vks-public
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: os-name=photon
+      replicas: 1
+    variables:
+    - name: vmClass
+      value: best-effort-medium
+    - name: storageClass
+      value: vsan-esa-default-policy-raid5
+    - name: kubernetes
+      value:
+        certificateRotation:
+          enabled: true
+          renewalDaysBeforeExpiry: 90
+    - name: bootstrapAddons
+      value:
+        cniRef:
+          name: antrea
+          namespace: vmware-system-vks-public
+    version: v1.36.2+vmware.2
+    workers:
+      machineDeployments:
+      - class: node-pool
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: os-name=photon
+        name: worker-pool-1
+        replicas: 3
+        variables:
+          overrides:
+          - name: vmClass
+            value: best-effort-medium

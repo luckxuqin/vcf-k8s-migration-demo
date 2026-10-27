@@ -1,0 +1,14 @@
+apiVersion: v2
+name: payments-db
+description: Production-grade PostgreSQL Database & App-Centric Metadata workload for VCF 9 VKS migration testing
+type: application
+version: 1.0.0
+appVersion: "16.4.0"
+keywords:
+  - database
+  - postgresql
+  - vks-migration
+  - vcf9
+maintainers:
+  - name: Broadcom TMM Team
+    email: mark@content.tmm.broadcom.lab

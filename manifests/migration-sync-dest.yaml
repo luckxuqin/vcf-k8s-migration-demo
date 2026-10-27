@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: migration-sync-dest
+  namespace: demo-pvmigrate
+spec:
+  containers:
+  - name: sync
+    image: postgres:16-alpine
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: vol
+      mountPath: /data
+  volumes:
+  - name: vol
+    persistentVolumeClaim:
+      claimName: data-payments-db-0
