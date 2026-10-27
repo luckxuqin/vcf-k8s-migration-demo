@@ -1,0 +1,71 @@
+# This file contains VirtualMachineClass resources generated from TKG-M cluster specifications.
+# These are REFERENCE ONLY and should NOT be applied to the Supervisor cluster.
+#
+# IMPORTANT NOTES:
+# - Creating VirtualMachineClasses requires cluster-admin privileges
+# - Regular users should use existing VM classes in the Supervisor cluster
+# - Disk size is NOT part of VirtualMachineClass spec (managed by StorageClass + PVC)
+# - Cores-per-socket requires configSpec (vSphere-specific advanced configuration)
+#
+# The Supervisor cluster should already have appropriate VirtualMachineClasses available.
+# Use these specifications to:
+# 1. Understand the resource requirements of your TKG-M cluster
+# 2. Select appropriate existing VirtualMachineClasses in VKS
+# 3. Request creation of similar classes from administrators if needed
+#
+# Generated from: tkgm-migrated-cluster
+# Generation time: 2026-10-27T08:35:45Z
+
+apiVersion: vmoperator.vmware.com/v1alpha6
+kind: VirtualMachineClass
+metadata:
+  annotations:
+    description: REFERENCE ONLY - Do not apply to Supervisor cluster. Requires cluster-admin
+      privileges to create.
+    disk-note: Disk size is not part of VirtualMachineClass spec. Managed by StorageClass
+      and PVC.
+    generated-from: TKG-M cluster tkgm-migrated-cluster
+    node-type: control-plane
+    original-disk-size: 40Gi
+  name: tkgm-migrated-cluster-control-plane-2cpu-8gb
+  namespace: vks-migration-demo
+spec:
+  hardware:
+    cpus: 2
+    memory: 8Gi
+  policies:
+    resources:
+      limits:
+        cpu: "2"
+        memory: 8Gi
+      requests:
+        cpu: "2"
+        memory: 8Gi
+
+---
+apiVersion: vmoperator.vmware.com/v1alpha6
+kind: VirtualMachineClass
+metadata:
+  annotations:
+    description: REFERENCE ONLY - Do not apply to Supervisor cluster. Requires cluster-admin
+      privileges to create.
+    disk-note: Disk size is not part of VirtualMachineClass spec. Managed by StorageClass
+      and PVC.
+    generated-from: TKG-M cluster tkgm-migrated-cluster
+    node-type: worker-pool
+    original-disk-size: 50Gi
+    pool-name: tkgm-workload-01
+  name: tkgm-migrated-cluster-tkgm-workload-01-4cpu-16gb
+  namespace: vks-migration-demo
+spec:
+  hardware:
+    cpus: 4
+    memory: 16Gi
+  policies:
+    resources:
+      limits:
+        cpu: "4"
+        memory: 16Gi
+      requests:
+        cpu: "4"
+        memory: 16Gi

@@ -1,0 +1,15 @@
+apiVersion: imageconfiguration.vmware.com/v1alpha1
+kind: Image
+metadata:
+  name: photon-5-amd64-v1.28.4---vmware.1-vkr.1
+spec:
+  customOVFProperties:
+    vmx:
+      version: 22
+  diskSize: 20Gi
+  kubernetesSpec:
+    image: REPLACE_KUBERNETES_DISTRIBUTION_IMAGE
+  osSpec:
+    image: REPLACE_BASE_OS_IMAGE
+    name: photon
+    version: "5"

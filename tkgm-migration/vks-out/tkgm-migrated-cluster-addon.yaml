@@ -1,0 +1,17 @@
+# VKS Addon Resources
+# Generated from TKG-M PackageInstalls
+#
+# IMPORTANT NOTES:
+# 1. These AddonInstall and AddonConfig CRs are for packages NOT managed by ClusterBootstrap
+# 2. Most TKG system packages (calico, vsphere-cpi, vsphere-csi, etc.) are automatically
+#    managed by VKS via ClusterBootstrap and do not need AddonInstall CRs
+# 3. AddonConfig values are placeholders - you need to:
+#    a. Extract actual values from the referenced secrets in the TKG-M workload cluster
+#    b. Update the AddonConfig CRs with the extracted values
+# 4. Ensure the corresponding Addon and AddonConfigDefinition CRs exist in the supervisor
+#    cluster before applying these resources
+#
+# Conversion Notes:
+# - No PackageInstalls in snapshot
+#
+---

@@ -1,0 +1,15 @@
+apiVersion: v1
+items:
+- category: Infrastructure
+  field: vcenter
+  reason: VKS manages vSphere infrastructure automatically
+  source: Cluster.spec.topology.variables
+  value:
+    datacenter: /lvn-vcf01-w02-DC
+    datastore: /lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01
+    folder: /lvn-vcf01-w02-DC/vm
+    resourcePool: /lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources
+    server: ""
+kind: List
+metadata:
+  name: unsupported-configurations
