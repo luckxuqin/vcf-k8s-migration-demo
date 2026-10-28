@@ -1,0 +1,71 @@
+items:
+- apiVersion: cluster.x-k8s.io/v1beta1
+  kind: MachineDeployment
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"cluster.x-k8s.io/v1beta1","kind":"MachineDeployment","metadata":{"annotations":{},"labels":{"cluster.x-k8s.io/cluster-name":"tkgm-workload-v122"},"name":"tkgm-workload-v122-md-0","namespace":"tkgm-workload-v122"},"spec":{"clusterName":"tkgm-workload-v122","replicas":2,"selector":{"matchLabels":{"cluster.x-k8s.io/cluster-name":"tkgm-workload-v122","nodepool":"md-0"}},"template":{"metadata":{"labels":{"cluster.x-k8s.io/cluster-name":"tkgm-workload-v122","nodepool":"md-0"}},"spec":{"bootstrap":{"dataSecretName":"tkgm-workload-v122-worker-bootstrap"},"clusterName":"tkgm-workload-v122","infrastructureRef":{"apiVersion":"infrastructure.cluster.x-k8s.io/v1beta1","kind":"VSphereMachineTemplate","name":"tkgm-workload-v122-worker"},"version":"v1.22.9+vmware.1"}}}}
+    creationTimestamp: "2026-10-28T06:18:37Z"
+    generation: 1
+    labels:
+      cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+    managedFields:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:kubectl.kubernetes.io/last-applied-configuration: {}
+          f:labels:
+            .: {}
+            f:cluster.x-k8s.io/cluster-name: {}
+        f:spec:
+          .: {}
+          f:clusterName: {}
+          f:replicas: {}
+          f:selector: {}
+          f:template:
+            .: {}
+            f:metadata:
+              .: {}
+              f:labels:
+                .: {}
+                f:cluster.x-k8s.io/cluster-name: {}
+                f:nodepool: {}
+            f:spec:
+              .: {}
+              f:bootstrap:
+                .: {}
+                f:dataSecretName: {}
+              f:clusterName: {}
+              f:infrastructureRef: {}
+              f:version: {}
+      manager: kubectl-client-side-apply
+      operation: Update
+      time: "2026-10-28T06:18:37Z"
+    name: tkgm-workload-v122-md-0
+    namespace: tkgm-workload-v122
+    resourceVersion: "3948916"
+    uid: f84f7429-a6fe-4196-94a2-d6d1ff09c7a0
+  spec:
+    clusterName: tkgm-workload-v122
+    replicas: 2
+    selector:
+      matchLabels:
+        cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+        nodepool: md-0
+    template:
+      metadata:
+        labels:
+          cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+          nodepool: md-0
+      spec:
+        bootstrap:
+          dataSecretName: tkgm-workload-v122-worker-bootstrap
+        clusterName: tkgm-workload-v122
+        infrastructureRef:
+          apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+          kind: VSphereMachineTemplate
+          name: tkgm-workload-v122-worker
+        version: v1.22.9+vmware.1

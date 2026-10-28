@@ -1,0 +1,33 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"run.tanzu.vmware.com/v1alpha3","kind":"ClusterBootstrap","metadata":{"annotations":{},"name":"tkgm-workload-v122","namespace":"tkgm-workload-v122"},"spec":{"cni":{"refName":"antrea"}}}
+  creationTimestamp: "2026-10-28T06:18:37Z"
+  generation: 1
+  managedFields:
+  - apiVersion: run.tanzu.vmware.com/v1alpha3
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+      f:spec:
+        .: {}
+        f:cni:
+          .: {}
+          f:refName: {}
+        f:paused: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2026-10-28T06:18:37Z"
+  name: tkgm-workload-v122
+  namespace: tkgm-workload-v122
+  resourceVersion: "3948918"
+  uid: 0b46ea76-cd63-4888-a1e2-aa2f0dbe1dc2
+spec:
+  cni:
+    refName: antrea
+  paused: false

@@ -1,0 +1,115 @@
+items:
+- apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+  kind: VSphereMachineTemplate
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"infrastructure.cluster.x-k8s.io/v1beta1","kind":"VSphereMachineTemplate","metadata":{"annotations":{},"name":"tkgm-workload-v122-control-plane","namespace":"tkgm-workload-v122"},"spec":{"template":{"spec":{"datacenter":"/lvn-vcf01-w02-DC","datastore":"/lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01","diskGiB":40,"folder":"/lvn-vcf01-w02-DC/vm","memoryMiB":8192,"network":{"devices":[{"dhcp4":true,"networkName":"VM DHCP"}]},"numCPUs":2,"resourcePool":"/lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources","template":"photon-3-k8s-v1.22.9-template"}}}}
+    creationTimestamp: "2026-10-28T06:18:37Z"
+    generation: 1
+    managedFields:
+    - apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:kubectl.kubernetes.io/last-applied-configuration: {}
+        f:spec:
+          .: {}
+          f:template:
+            .: {}
+            f:spec:
+              .: {}
+              f:datacenter: {}
+              f:datastore: {}
+              f:diskGiB: {}
+              f:folder: {}
+              f:memoryMiB: {}
+              f:network:
+                .: {}
+                f:devices: {}
+              f:numCPUs: {}
+              f:powerOffMode: {}
+              f:resourcePool: {}
+              f:template: {}
+      manager: kubectl-client-side-apply
+      operation: Update
+      time: "2026-10-28T06:18:37Z"
+    name: tkgm-workload-v122-control-plane
+    namespace: tkgm-workload-v122
+    resourceVersion: "3948913"
+    uid: 87491b38-01c0-435f-819b-f4d8738438c8
+  spec:
+    template:
+      spec:
+        datacenter: /lvn-vcf01-w02-DC
+        datastore: /lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01
+        diskGiB: 40
+        folder: /lvn-vcf01-w02-DC/vm
+        memoryMiB: 8192
+        network:
+          devices:
+          - dhcp4: true
+            networkName: VM DHCP
+        numCPUs: 2
+        powerOffMode: hard
+        resourcePool: /lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources
+        template: photon-3-k8s-v1.22.9-template
+- apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+  kind: VSphereMachineTemplate
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"infrastructure.cluster.x-k8s.io/v1beta1","kind":"VSphereMachineTemplate","metadata":{"annotations":{},"name":"tkgm-workload-v122-worker","namespace":"tkgm-workload-v122"},"spec":{"template":{"spec":{"datacenter":"/lvn-vcf01-w02-DC","datastore":"/lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01","diskGiB":50,"folder":"/lvn-vcf01-w02-DC/vm","memoryMiB":16384,"network":{"devices":[{"dhcp4":true,"networkName":"VM DHCP"}]},"numCPUs":4,"resourcePool":"/lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources","template":"photon-3-k8s-v1.22.9-template"}}}}
+    creationTimestamp: "2026-10-28T06:18:37Z"
+    generation: 1
+    managedFields:
+    - apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:kubectl.kubernetes.io/last-applied-configuration: {}
+        f:spec:
+          .: {}
+          f:template:
+            .: {}
+            f:spec:
+              .: {}
+              f:datacenter: {}
+              f:datastore: {}
+              f:diskGiB: {}
+              f:folder: {}
+              f:memoryMiB: {}
+              f:network:
+                .: {}
+                f:devices: {}
+              f:numCPUs: {}
+              f:powerOffMode: {}
+              f:resourcePool: {}
+              f:template: {}
+      manager: kubectl-client-side-apply
+      operation: Update
+      time: "2026-10-28T06:18:37Z"
+    name: tkgm-workload-v122-worker
+    namespace: tkgm-workload-v122
+    resourceVersion: "3948914"
+    uid: 62181114-9b7a-4585-9d7f-23d6acf126ac
+  spec:
+    template:
+      spec:
+        datacenter: /lvn-vcf01-w02-DC
+        datastore: /lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01
+        diskGiB: 50
+        folder: /lvn-vcf01-w02-DC/vm
+        memoryMiB: 16384
+        network:
+          devices:
+          - dhcp4: true
+            networkName: VM DHCP
+        numCPUs: 4
+        powerOffMode: hard
+        resourcePool: /lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources
+        template: photon-3-k8s-v1.22.9-template

@@ -1,0 +1,171 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tkgm-workload-v122
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: tkgm-workload-v122
+  namespace: tkgm-workload-v122
+spec:
+  server: vc-w02.vcf01.content.tmm.broadcom.lab
+  controlPlaneEndpoint:
+    host: 10.160.201.215
+    port: 6443
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: tkgm-workload-v122-control-plane
+  namespace: tkgm-workload-v122
+spec:
+  template:
+    spec:
+      datacenter: /lvn-vcf01-w02-DC
+      datastore: /lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01
+      resourcePool: /lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources
+      folder: /lvn-vcf01-w02-DC/vm
+      network:
+        devices:
+        - networkName: VM DHCP
+          dhcp4: true
+      numCPUs: 2
+      memoryMiB: 8192
+      diskGiB: 40
+      template: photon-3-k8s-v1.22.9-template
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: tkgm-workload-v122-worker
+  namespace: tkgm-workload-v122
+spec:
+  template:
+    spec:
+      datacenter: /lvn-vcf01-w02-DC
+      datastore: /lvn-vcf01-w02-DC/datastore/lvn-vcf01-w02-cl01-vsan01
+      resourcePool: /lvn-vcf01-w02-DC/host/lvn-vcf01-w02-cl01/Resources
+      folder: /lvn-vcf01-w02-DC/vm
+      network:
+        devices:
+        - networkName: VM DHCP
+          dhcp4: true
+      numCPUs: 4
+      memoryMiB: 16384
+      diskGiB: 50
+      template: photon-3-k8s-v1.22.9-template
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: tkgm-workload-v122-control-plane
+  namespace: tkgm-workload-v122
+  labels:
+    cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+spec:
+  version: v1.22.9+vmware.1
+  replicas: 1
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: tkgm-workload-v122-control-plane
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: tkgm-workload-v122-md-0
+  namespace: tkgm-workload-v122
+  labels:
+    cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+spec:
+  clusterName: tkgm-workload-v122
+  replicas: 2
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+      nodepool: md-0
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+        nodepool: md-0
+    spec:
+      clusterName: tkgm-workload-v122
+      version: v1.22.9+vmware.1
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereMachineTemplate
+        name: tkgm-workload-v122-worker
+      bootstrap:
+        dataSecretName: tkgm-workload-v122-worker-bootstrap
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: tkgm-workload-v122
+  namespace: tkgm-workload-v122
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: tkgm-workload-v122
+  annotations:
+    osInfo: "photon-3"
+    run.tanzu.vmware.com/tkr: "v1.22.9---vmware.1-tkg.1.cc71bc8"
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 100.96.0.0/11
+    services:
+      cidrBlocks:
+      - 100.64.0.0/13
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: tkgm-workload-v122-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: VSphereCluster
+    name: tkgm-workload-v122
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: tkgm-workload-v122
+  namespace: tkgm-workload-v122
+spec:
+  cni:
+    refName: antrea
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkgm-workload-v122-kubeconfig
+  namespace: tkgm-workload-v122
+  labels:
+    cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+type: cluster.x-k8s.io/secret
+stringData:
+  value: |
+    apiVersion: v1
+    kind: Config
+    clusters:
+    - cluster:
+        server: https://10.160.201.215:6443
+        insecure-skip-tls-verify: true
+      name: tkgm-workload-v122
+    contexts:
+    - context:
+        cluster: tkgm-workload-v122
+        user: tkgm-admin
+      name: tkgm-workload-v122-admin@tkgm-workload-v122
+    current-context: tkgm-workload-v122-admin@tkgm-workload-v122
+    users:
+    - name: tkgm-admin
+      user:
+        token: dummy-token

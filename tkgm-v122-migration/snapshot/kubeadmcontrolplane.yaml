@@ -1,0 +1,67 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"controlplane.cluster.x-k8s.io/v1beta1","kind":"KubeadmControlPlane","metadata":{"annotations":{},"labels":{"cluster.x-k8s.io/cluster-name":"tkgm-workload-v122"},"name":"tkgm-workload-v122-control-plane","namespace":"tkgm-workload-v122"},"spec":{"kubeadmConfigSpec":{"initConfiguration":{"nodeRegistration":{"kubeletExtraArgs":{"cloud-provider":"external"}}}},"machineTemplate":{"infrastructureRef":{"apiVersion":"infrastructure.cluster.x-k8s.io/v1beta1","kind":"VSphereMachineTemplate","name":"tkgm-workload-v122-control-plane"}},"replicas":1,"version":"v1.22.9+vmware.1"}}
+  creationTimestamp: "2026-10-28T06:18:37Z"
+  generation: 1
+  labels:
+    cluster.x-k8s.io/cluster-name: tkgm-workload-v122
+  managedFields:
+  - apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+        f:labels:
+          .: {}
+          f:cluster.x-k8s.io/cluster-name: {}
+      f:spec:
+        .: {}
+        f:kubeadmConfigSpec:
+          .: {}
+          f:initConfiguration:
+            .: {}
+            f:nodeRegistration:
+              .: {}
+              f:kubeletExtraArgs:
+                .: {}
+                f:cloud-provider: {}
+        f:machineTemplate:
+          .: {}
+          f:infrastructureRef: {}
+        f:replicas: {}
+        f:rolloutStrategy:
+          .: {}
+          f:rollingUpdate:
+            .: {}
+            f:maxSurge: {}
+          f:type: {}
+        f:version: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2026-10-28T06:18:37Z"
+  name: tkgm-workload-v122-control-plane
+  namespace: tkgm-workload-v122
+  resourceVersion: "3948915"
+  uid: f44df9b2-7ff7-412b-ab99-c56fc99d72ed
+spec:
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: tkgm-workload-v122-control-plane
+  replicas: 1
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+    type: RollingUpdate
+  version: v1.22.9+vmware.1

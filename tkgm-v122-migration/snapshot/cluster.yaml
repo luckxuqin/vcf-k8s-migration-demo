@@ -1,0 +1,60 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"cluster.x-k8s.io/v1beta1","kind":"Cluster","metadata":{"annotations":{"osInfo":"photon-3","run.tanzu.vmware.com/tkr":"v1.22.9---vmware.1-tkg.1.cc71bc8"},"labels":{"tkg.tanzu.vmware.com/cluster-name":"tkgm-workload-v122"},"name":"tkgm-workload-v122","namespace":"tkgm-workload-v122"},"spec":{"clusterNetwork":{"pods":{"cidrBlocks":["100.96.0.0/11"]},"services":{"cidrBlocks":["100.64.0.0/13"]}},"controlPlaneRef":{"apiVersion":"controlplane.cluster.x-k8s.io/v1beta1","kind":"KubeadmControlPlane","name":"tkgm-workload-v122-control-plane"},"infrastructureRef":{"apiVersion":"infrastructure.cluster.x-k8s.io/v1beta1","kind":"VSphereCluster","name":"tkgm-workload-v122"}}}
+    osInfo: photon-3
+    run.tanzu.vmware.com/tkr: v1.22.9---vmware.1-tkg.1.cc71bc8
+  creationTimestamp: "2026-10-28T06:18:37Z"
+  generation: 1
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: tkgm-workload-v122
+  managedFields:
+  - apiVersion: cluster.x-k8s.io/v1beta1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+          f:osInfo: {}
+          f:run.tanzu.vmware.com/tkr: {}
+        f:labels:
+          .: {}
+          f:tkg.tanzu.vmware.com/cluster-name: {}
+      f:spec:
+        .: {}
+        f:clusterNetwork:
+          .: {}
+          f:pods:
+            .: {}
+            f:cidrBlocks: {}
+          f:services:
+            .: {}
+            f:cidrBlocks: {}
+        f:controlPlaneRef: {}
+        f:infrastructureRef: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2026-10-28T06:18:37Z"
+  name: tkgm-workload-v122
+  namespace: tkgm-workload-v122
+  resourceVersion: "3948917"
+  uid: 827fc325-afe3-4cf8-97f7-688527cc3a39
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 100.96.0.0/11
+    services:
+      cidrBlocks:
+      - 100.64.0.0/13
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: tkgm-workload-v122-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: VSphereCluster
+    name: tkgm-workload-v122

@@ -1,0 +1,5 @@
+clusterClass: builtin-generic-v3.6.0
+defaultStorageClass: wcpglobal-storage-profile
+defaultVMClass: best-effort-small
+kubernetesVersion: v1.22.9+vmware.1
+targetVKSVersion: 3.6.0

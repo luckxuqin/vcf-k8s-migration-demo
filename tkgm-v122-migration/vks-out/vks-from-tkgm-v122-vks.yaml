@@ -1,0 +1,64 @@
+apiVersion: migration.vmware.com/v1alpha1
+kind: BlockingWarning
+metadata:
+  name: vks-from-tkgm-v122-vsphere-prune
+spec:
+  matrixCell: matrix.infra.vspheremachine.prune
+  message: vSphere infrastructure fields (datacenter, datastore, folder, resourcePool,
+    network) were dropped from VSphereMachineTemplate during conversion to VKS topology.
+  remediation: |
+    STRIP: VSphereCluster and VSphereMachineTemplate fields (vCenter credentials, datastores, networks, resource pools) are managed by the Supervisor namespace. These fields must NOT be present in the VKS cluster spec. Applies to both legacy clusters (KubeadmControlPlane-based) and classy clusters with VSphereMachineTemplates (e.g. SR-IOV DirectPath).
+---
+apiVersion: cluster.x-k8s.io/v1beta2
+kind: Cluster
+metadata:
+  annotations:
+    converted-from: legacy-tkg-m-cluster
+    original-cluster: tkgm-workload-v122
+    original-cni: antrea
+    run.tanzu.vmware.com/resolve-os-image: os-name=photon
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: vks-from-tkgm-v122
+  name: vks-from-tkgm-v122
+  namespace: vks-migration-demo
+spec:
+  topology:
+    classRef:
+      name: builtin-generic-v3.6.0
+      namespace: vmware-system-vks-public
+    controlPlane:
+      metadata:
+        labels:
+          cluster-role: control-plane
+      replicas: 1
+      variables:
+        overrides:
+        - name: vmClass
+          value: vks-from-tkgm-v122-control-plane-2cpu-8gb
+        - name: storageClass
+          value: vsan-esa-default-policy-raid5
+    variables:
+    - name: vmClass
+      value: vks-from-tkgm-v122-control-plane-2cpu-8gb
+    - name: storageClass
+      value: vsan-esa-default-policy-raid5
+    - name: kubernetes
+      value:
+        certificateRotation:
+          enabled: true
+          renewalDaysBeforeExpiry: 90
+    version: v1.22.9+vmware.1
+    workers:
+      machineDeployments:
+      - class: node-pool
+        metadata:
+          labels:
+            node-pool: tkgm-workload-v122-md-0-worker-pool
+        name: tkgm-workload-v122
+        replicas: 2
+        variables:
+          overrides:
+          - name: vmClass
+            value: vks-from-tkgm-v122-tkgm-workload-v122-4cpu-16gb
+          - name: storageClass
+            value: vsan-esa-default-policy-raid5
